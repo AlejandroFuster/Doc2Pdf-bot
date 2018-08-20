@@ -56,7 +56,6 @@ def get_destination_path(path, file_url):
 
 def document_saver(bot, update):
     if update.message.document and check_document(update.message.document.file_name):
-        # logger.info(u'File to convert: "%s" ' % update.message.document.file_name)
         last_document = update.message.document
         try:
             doc_file = bot.getFile(last_document.file_id)
