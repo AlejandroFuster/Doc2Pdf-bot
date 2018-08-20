@@ -3,7 +3,7 @@
 Convert DOC or DOCX using a Telegram Bot
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/9201111/44165000-e2466380-a0c7-11e8-9d32-07b5203bdb7c.PNG">
+  <img src="https://user-images.githubusercontent.com/9201111/44356676-4db97800-a4b0-11e8-92fa-0c2a6807fbb8.png">
 </p>
 
 
@@ -12,6 +12,9 @@ Convert DOC or DOCX using a Telegram Bot
 If you want to run this bot locally on your machine you only have to install the requirements, edit [Secrets.py](Secrets.py) with your [token](https://core.telegram.org/bots/faq#how-do-i-create-a-bot), and run: 
 
 `python bot.py`
+
+Then, go to Telegram and start it with the `/start` command.
+
 
 ### Requirements
 
@@ -81,7 +84,7 @@ Feel free to contribute to this repository, but first discuss the change you wis
 
 ## Authors
 
-* **Alejandro Fuster** - *Initial work* - [AlejandroFuster](https://github.com/alejandrofuster)
+* **Alejandro Fuster** - [AlejandroFuster](https://github.com/alejandrofuster)
 
 ## License
 
