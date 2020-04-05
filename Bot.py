@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def convert_to(folder, source):
-    args = ['libreoffice', '--headless', '--convert-to', 'pdf', '--outdir', folder, source]
+    args = ['libreoffice', '--headless', '--convert-to', 'pdf:writer_pdf_Export', '--outdir', folder, source]
     process = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None)
     file = re.search('-> (.*?) using filter', process.stdout.decode())
     if file is None:
@@ -27,24 +27,24 @@ class Process(Exception):
         self.output = output
 
 
-def start(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
-                    text='Hello! Send me a DOC or DOCX file and I will try to convert it to PDF :)')
+def start(update, context):
+    context.bot.send_message(chat_id=update.message.chat_id,
+                    text="Send me .doc, .docx or .odt and I'll convert them into .pdf.")
 
 
-def error(bot, update, e):
-    logger.warning(u'Update "%s" caused error "%s"' % (update, e))
-    update.message.reply_text(e)
+def error(update, context):
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
+    update.message.reply_text(str(context.error))
 
 
-def listener(bot, update):
-    bot.sendMessage(chat_id=update.message.chat_id,
+def listener(update, context):
+    context.bot.send_message(chat_id=update.message.chat_id,
                     text="I'm sorry, I don't understand you!"
-                    "\nI'm able to reply with a PDF when you send me a DOC or DOCX file")
+                    "\nI'm able to reply with a PDF when you send me a .doc, .odt or docx file.")
 
 
 def check_document(file_name):
-    return file_name.endswith('.docx') or file_name.endswith('.doc')
+    return file_name.endswith(('.docx', '.doc', '.odt'))
 
 
 def get_destination_path(path, file_url):
@@ -54,18 +54,18 @@ def get_destination_path(path, file_url):
     return down_file, new_file
 
 
-def document_saver(bot, update):
+def document_saver(update, context):
     if update.message.document and check_document(update.message.document.file_name):
         last_document = update.message.document
         try:
-            doc_file = bot.getFile(last_document.file_id)
+            doc_file = context.bot.getFile(last_document.file_id)
             my_path = os.path.abspath(os.path.dirname(__file__))
             down, new = get_destination_path(my_path, update.message.document.file_name)
             doc = doc_file.download(down)
             convert_to(my_path, update.message.document.file_name)
-            bot.sendMessage(chat_id=update.message.chat_id,
-                            text='Converting "%s"!' % update.message.document.file_name)
-            bot.send_document(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
+                            text='🔃 conversion for "%s" in progress!' % update.message.document.file_name)
+            context.bot.send_document(chat_id=update.message.chat_id,
                               document=open(new, 'rb'))
             if os.path.exists(doc):
                 os.remove(doc)
@@ -73,17 +73,17 @@ def document_saver(bot, update):
                 os.remove(new)
         except Exception as e:
             logger.error('Error:%s' % e)
-            bot.sendMessage(chat_id=update.message.chat_id,
-                            text="Error! :(")
+            context.bot.send_message(chat_id=update.message.chat_id,
+                            text="Uh, oh! An error occured. Please try again.")
     else:
-        bot.sendMessage(chat_id=update.message.chat_id,
-                        text="I'm only able to convert DOCX and DOC files!")
+        context.bot.send_message(chat_id=update.message.chat_id,
+                        text="I can convert only .docx, .doc or .odt files!")
 
 
 def main():
 
     # Create handler
-    updater = Updater(TOKEN)
+    updater = Updater(TOKEN, use_context=True)
     dp = updater.dispatcher
 
     # Log errors
